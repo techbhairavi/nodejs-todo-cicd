@@ -1,0 +1,35 @@
+
+Hello #techbhairavi community I am sharing the step by step procedure for Jenkins CICD with GitHub Integration
+1. Create a AWS EC2 Instance under Free Tier Account.
+2. run "sudo apt update" command
+3. Install jenkins Binary files from 
+   https://pkg.origin.jenkins.io/debian/ and Install jenkins to EC2 instance.
+    - curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
+    /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+    - echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+    https://pkg.jenkins.io/debian binary/ | sudo tee \
+    /etc/apt/sources.list.d/jenkins.list > /dev/null
+    - sudo apt-get update
+    - sudo apt-get install fontconfig openjdk-17-jre
+    - sudo apt-get install jenkins
+4. update EC2 instance  "sudo apt-get update" 
+5. Run commands and start the service
+    - sudo systemctl enable jenkins
+    - sudo systemctl start jenkins
+    - sudo systemctl status jenkins
+6. Expose port 8080 for jenkins in AWS 
+7. open AWSIP:8080 and run jenkins register the details
+8. copy from jenkins " /var/lib/jenkins/secrets/initialAdminPassword" and run in aws console 
+9. cat /var/lib/jenkins/secrets/initialAdminPassword output password copy and paste into jenkins page.
+10. jenkins configured now create new item
+    fill the following details
+     - source code "Github url"
+     - credential = private key add here
+11. Generate keypair through EC2 instance via SSH-keygen and copy keys to integrate git and jenkins
+11. Go to Github settings -> SSH & GPG Keys -> add new key copy publick key rd_rsa.pub
+12. Go to Jenkins Build the code if successfull then copy path (from console tab example: /var/lib/jenkins/workspace/todo-node-app)
+    paste in AWS EC2 with cd command
+    cd /var/lib/jenkins/workspace/todo-node-app
+13. ls and confirm build successfull and code copied to terminal
+14. Follow Developer Instruction from README.md
+15. Run code (EXPOSE code as per instruction)
