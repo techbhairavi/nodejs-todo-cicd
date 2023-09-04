@@ -1,35 +1,136 @@
+Create an AWS EC2 Instance and run the console.
 
-Hello #techbhairavi community I am sharing the step by step procedure for Jenkins CICD with GitHub Integration
-1. Create a AWS EC2 Instance under Free Tier Account.
-2. run "sudo apt update" command
-3. Install jenkins Binary files from 
-   https://pkg.origin.jenkins.io/debian/ and Install jenkins to EC2 instance.
-    - curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
-    /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-    - echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-    https://pkg.jenkins.io/debian binary/ | sudo tee \
-    /etc/apt/sources.list.d/jenkins.list > /dev/null
-    - sudo apt-get update
-    - sudo apt-get install fontconfig openjdk-17-jre
-    - sudo apt-get install jenkins
-4. update EC2 instance  "sudo apt-get update" 
-5. Run commands and start the service
-    - sudo systemctl enable jenkins
-    - sudo systemctl start jenkins
-    - sudo systemctl status jenkins
-6. Expose port 8080 for jenkins in AWS 
-7. open AWSIP:8080 and run jenkins register the details
-8. copy from jenkins " /var/lib/jenkins/secrets/initialAdminPassword" and run in aws console 
-9. cat /var/lib/jenkins/secrets/initialAdminPassword output password copy and paste into jenkins page.
-10. jenkins configured now create new item
-    fill the following details
-     - source code "Github url"
-     - credential = private key add here
-11. Generate keypair through EC2 instance via SSH-keygen and copy keys to integrate git and jenkins
-11. Go to Github settings -> SSH & GPG Keys -> add new key copy publick key rd_rsa.pub
-12. Go to Jenkins Build the code if successfull then copy path (from console tab example: /var/lib/jenkins/workspace/todo-node-app)
-    paste in AWS EC2 with cd command
-    cd /var/lib/jenkins/workspace/todo-node-app
-13. ls and confirm build successfull and code copied to terminal
-14. Follow Developer Instruction from README.md
-15. Run code (EXPOSE code pas per instruction)
+Run the "sudo apt update" command
+
+Install Jenkins Binary files from https://pkg.origin.jenkins.io/debian/ and Install Jenkins to EC2 instance.
+
+curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee
+/usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]
+https://pkg.jenkins.io/debian binary/ | sudo tee
+/etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt-get update
+
+sudo apt-get install fontconfig openjdk-17-jre (java)
+
+sudo apt-get install jenkins
+
+update EC2 instance "sudo apt-get update"
+
+Run commands and start the service
+
+sudo systemctl enable jenkins
+
+sudo systemctl start jenkins
+
+sudo systemctl status jenkins
+
+Expose port 8080 for Jenkins in AWS
+
+Open jenkins port with your IP(ex: 192.168.10.0:8080) and run Jenkins to register the details
+
+Copy from jenkins display " /var/lib/jenkins/secrets/initialAdminPassword" and run this in aws console
+
+cat /var/lib/jenkins/secrets/initialAdminPassword
+
+o/p password copy and paste into jenkins page.
+Jenkins configured now create new item fill the following details
+
+source code "Github url"
+
+credential = private key added here*
+
+*Generate key through EC2 instance via SSH-keygen command and copy keys to integrate git and jenkins.
+
+Go to Github settings -> SSH & GPG Keys -> add new key
+
+copy public key rd_rsa.pub (from AWS console)-> Add.
+Go to Jenkins, Build the code if successful then copy path (from console tab example: /var/lib/jenkins/workspace/todo-node-app) paste it in AWS EC2 with cd command (Ex: cd /var/lib/jenkins/workspace/todo-node-app)
+
+verify through "ls" code copied to terminal.
+
+Follow Developer Instructions from README.md
+
+Run code (EXPOSE code to AWS security group as per instruction)
+
+To Run this on any environment we have to make a Dockerfile(if not provided by the developer)
+
+sudo apt install docker.io
+
+vim Dockerfile
+
+FROM node:12.2.0-alpine
+
+WORKDIR app
+
+COPY . .
+
+RUN npm install
+
+EXPOSE 8000
+
+CMD ["node","app.js"]
+
+Build a container through this Dockerfile
+
+Run "docker build . -t todo-node-app" (if error comes run the below command)
+
+sudo usermod -a -G docker $USER
+reboot system and run docker build command again.
+Run container in daemon mode
+
+docker run -d --name node-todo-app -p 8000:8000 todo-node-app
+
+verify via docker ps command
+
+Expose port on 8000 in AWS
+
+verify by open page ex. 192.169.1.0:8000
+To automate this process run through jenkins
+
+Open jenkins
+
+Dashboard-->todo-node-app-->configuration-->Build steps
+
+Add lines
+
+docker build . -t todo-node-app
+
+docker run -d --name node-todo-app -p 8000:8000 todo-node-app
+
+save and click build now
+
+(if permission denied error occurs then run
+
+chmod 777 /var/lib/jenkins/workspace/todo-node-app
+
+sudo usermod -a -G docker jenkins
+
+systemctl restart jenkins )
+
+Integrate webhook to automate full process before that kill container "docker kill container name"
+
+Install plugins in jenkins
+
+Dashboard-->manage jenkins-->plugin manager-->Github integration -> Install-->restart jenkins
+
+Configure webhook in github
+
+verify keys in github settings.
+
+Go to repositories setting-->webhooks-->add webhook-->payload url=jenkins url/github-webhook/ (ex. 192.168.1.0:8080/github-webhook)
+
+Expose 8080 to everyone in AWS
+
+set content type= application/json-->add webhook-->verify with tick
+
+Go to job in jenkins-->configure-->Build trigger-->github hook trigger for GITscm polling-->save
+
+Change code in github-->changes commit
+
+(Make sure your container is not in a running state)
+
+Congratulations!!!!! You have successfully deploy the code. If you like my content don't forget to follow me on LinkedIn https://www.linkedin.com/in/bhairaviw/
+
