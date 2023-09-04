@@ -32,4 +32,4 @@ Hello #techbhairavi community I am sharing the step by step procedure for Jenkin
     cd /var/lib/jenkins/workspace/todo-node-app
 13. ls and confirm build successfull and code copied to terminal
 14. Follow Developer Instruction from README.md
-15. Run code (EXPOSE code as per instruction)
+15. Run code (EXPOSE code pas per instruction)
